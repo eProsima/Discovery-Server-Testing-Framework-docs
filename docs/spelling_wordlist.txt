@@ -46,6 +46,7 @@ crl
 crypto
 cryptographic
 cryptosystem
+CTest
 datagram
 datagrams
 datarate
@@ -91,6 +92,7 @@ ignoreParticipantFlags
 initializations
 interoperability
 Intra
+intraprocess
 IPv
 kB
 leethomason
@@ -176,6 +178,9 @@ univocally
 unmatch
 unmatching
 Valgrind
+validator
+validators
+Validators
 vcstool
 wget
 whitelist

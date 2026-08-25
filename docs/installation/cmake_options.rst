@@ -5,8 +5,8 @@
 CMake options
 =============
 
-*eProsima Discovery Server* provides some CMake options for changing the behavior and configuration of
-*Discovery Server* application. These options allow the user to enable/disable certain settings by defining these
+The Discovery Server testing framework provides some CMake options for changing the behavior and configuration of
+the ``discovery-server`` tool. These options allow the user to enable/disable certain settings by defining these
 options to ON/OFF at the CMake execution.
 
 .. list-table::
@@ -16,11 +16,6 @@ options to ON/OFF at the CMake execution.
         - Description
         - Possible values
         - Default
-    *   - :class:`COMPILE_EXAMPLES`
-        - Build Discovery Server example.
-        - ``Release`` |br|
-          ``Debug``
-        - ``Release``
     *   - :class:`LOG_LEVEL_INFO`
         - Set logging level to Info.
         - ``ON`` |br|
@@ -43,3 +38,7 @@ options to ON/OFF at the CMake execution.
             - ``Address`` enables Address Sanitizer.
         - ``OFF`` |br| ``Address`` |br| ``Thread``
         - ``OFF``
+
+The test cases are registered with CTest as part of the build, and some of them drive the *Fast DDS* CLI tool.
+Build *Fast DDS* with :class:`COMPILE_TOOLS` and :class:`INSTALL_TOOLS` set to ``ON`` so that the ``fastdds``
+executable is available when the suite is run.

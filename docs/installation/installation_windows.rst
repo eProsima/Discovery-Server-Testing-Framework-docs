@@ -3,13 +3,17 @@
 Windows installation
 ####################
 
-The instructions for installing the Discovery Server tool in a Windows environment are provided in this page.
-In order to use the Discovery Server tool, its necessary to have a compatible version of
-`eProsima Fast DDS <https://eprosima-fast-rtps.readthedocs.io/en/latest/>`__ installed (over release 2.0.2).
+The instructions for building the Discovery Server testing framework in a Windows environment are provided in this
+page.
+The framework builds against `eProsima Fast DDS <https://fast-dds.docs.eprosima.com/en/latest/>`__, so a compatible
+version of the library must be available.
+Each branch of the framework is attached to a *Fast DDS* release; the correspondence is listed in the
+`RELEASE_SUPPORT.md <https://github.com/eProsima/Discovery-Server-Testing-Framework/blob/master/RELEASE_SUPPORT.md>`_ file of the
+repository.
 
-*eProsima Fast DDS* dependencies as tinyxml must installed and accessible in the system.
+*eProsima Fast DDS* dependencies as tinyxml must be installed and accessible in the system.
 The cross-platform tool `colcon <https://colcon.readthedocs.io/en/released/>`__ was chosen to simplify the
-installation of the several mutually dependent `CMake <https://cmake.org/cmake/help/latest/>`__ projects.
+build of the several mutually dependent `CMake <https://cmake.org/cmake/help/latest/>`__ projects.
 In order to use colcon, `Python3 <https://www.python.org/>`__ and `CMake <https://cmake.org/cmake/help/latest/>`__
 must be first installed.
 
@@ -24,13 +28,13 @@ must be first installed.
 Requirements
 ************
 
-The installation of *eProsima Fast DDS* in a Windows environment from sources requires the following tools to be
-installed in the system:
+Building the framework in a Windows environment from sources requires the following tools to be installed in the
+system:
 
 * :ref:`visual_studio_sw`
 * :ref:`chocolatey_sw`
 * :ref:`windows_cmake_pip3_wget_git_sw`
-* :ref:`windows_python_modules` [optional]
+* :ref:`windows_python_modules`
 
 .. _visual_studio_sw:
 
@@ -58,7 +62,7 @@ Download and install it directly from the `website <https://chocolatey.org/>`_.
 CMake, pip3, wget and git
 ==========================
 
-These packages provide the tools required to install the Discovery Server tool, *eProsima Fast DDS* and its
+These packages provide the tools required to build the framework, *eProsima Fast DDS* and its
 dependencies from command line.
 Download and install CMake_, pip3_, wget_ and git_ by following the instructions detailed in the respective websites.
 Once installed, add the path to the executables to the :code:`PATH` from the
@@ -69,17 +73,17 @@ Once installed, add the path to the executables to the :code:`PATH` from the
 Python3 modules
 ===============
 
-To execute the tests that verify the proper operation of the Discovery Server discovery mechanism, it is necessary
-to install some Python3 modules. These can be installed using `pip`.
+The test suite is written in Python3 and needs some modules to run and validate the test cases.
+These can be installed using `pip`.
 
 .. code-block:: bash
 
-    > pip3 install jsondiff==1.2.0 xmltodict==0.12.0
+    > pip3 install jsondiff==2.0.0 xmltodict==0.13.0 pandas==3.0.1 psutil xmlschema
 
 Dependencies
 ************
 
-*eProsima Fast RTPS* has the following dependencies, when installed from sources in a Windows environment:
+*eProsima Fast DDS* has the following dependencies, when installed from sources in a Windows environment:
 
 * :ref:`asiotinyxml2_sw`
 * :ref:`openssl_sw`
@@ -128,7 +132,7 @@ Installation steps
 ******************
 
 colcon_ is a command line tool based on CMake_ aimed at building sets of software packages.
-This section explains how to use it to compile the Discovery Server tool and its dependencies.
+This section explains how to use it to compile the framework and its dependencies.
 
 .. important::
 
@@ -148,19 +152,18 @@ This section explains how to use it to compile the Discovery Server tool and its
 
        If this fails due to an Environment Error, add the :code:`--user` flag to the :code:`pip3` installation command.
 
-#.  Create a Discovery Server workspace and download the repos file that will be used to install the Discovery Server
-    tool and its dependencies:
+#.  Create a workspace and download the repos file that will be used to build the framework and its dependencies:
 
     .. code-block:: bash
 
         > mkdir discovery-server-ws
         > cd discovery-server-ws
         > mkdir src
-        > wget https://raw.githubusercontent.com/eProsima/Discovery-Server/master/discovery-server.repos
+        > wget https://raw.githubusercontent.com/eProsima/Discovery-Server-Testing-Framework/master/discovery-server.repos
         > vcs import src < discovery-server.repos
 
     A
-    `discovery-server.repos <https://raw.githubusercontent.com/eProsima/Discovery-Server/master/discovery-server.repos>`__
+    `discovery-server.repos <https://raw.githubusercontent.com/eProsima/Discovery-Server-Testing-Framework/master/discovery-server.repos>`__
     file is available in order to profit from `vcstool <https://github.com/dirk-thomas/vcstool>`__
     capabilities to download the needed repositories.
 
@@ -169,17 +172,19 @@ This section explains how to use it to compile the Discovery Server tool and its
         In order to avoid using vcstool the following repositories should be downloaded from Github into
         the ``discovery-server-ws/src`` directory:
 
-        +------------------------------------+-----------------------------------------------------------+-------------+
-        | PACKAGE                            | URL                                                       | BRANCH      |
-        +====================================+===========================================================+=============+
-        | eProsima/Fast-CDR                  | https://github.com/eProsima/Fast-CDR.git                  | master      |
-        +------------------------------------+-----------------------------------------------------------+-------------+
-        | eProsima/Fast-RTPS                 | https://github.com/eProsima/Fast-RTPS.git                 | master      |
-        +------------------------------------+-----------------------------------------------------------+-------------+
-        | eProsima/Discovery-Server          | https://github.com/eProsima/Discovery-Server.git          | master      |
-        +------------------------------------+-----------------------------------------------------------+-------------+
-        | eProsima/foonathan_memory_vendor   | https://github.com/eProsima/foonathan_memory_vendor.git   | master      |
-        +------------------------------------+-----------------------------------------------------------+-------------+
+        +-------------------------+--------------------------------------------------------------------+--------+
+        | PACKAGE                 | URL                                                                | BRANCH |
+        +=========================+====================================================================+========+
+        | fastcdr                 | https://github.com/eProsima/Fast-CDR.git                           | master |
+        +-------------------------+--------------------------------------------------------------------+--------+
+        | fastdds                 | https://github.com/eProsima/Fast-DDS.git                           | master |
+        +-------------------------+--------------------------------------------------------------------+--------+
+        | discovery_server        | https://github.com/eProsima/Discovery-Server-Testing-Framework.git | master |
+        +-------------------------+--------------------------------------------------------------------+--------+
+        | foonathan_memory_vendor | https://github.com/eProsima/foonathan_memory_vendor.git            | master |
+        +-------------------------+--------------------------------------------------------------------+--------+
+        | leethomason/tinyxml2    | https://github.com/leethomason/tinyxml2.git                        | master |
+        +-------------------------+--------------------------------------------------------------------+--------+
 
 
 #.  If the generator (compiler) of choice is Visual Studio, launch colcon from a visual studio console.
@@ -191,17 +196,21 @@ This section explains how to use it to compile the Discovery Server tool and its
     Choose the build configuration by declaring ``CMAKE_BUILD_TYPE`` as Debug or Release.
     For this example, the Debug option has been chosen, which would be the choice of advanced users for debugging
     purposes.
-    If using a multi-configuration generator like Visual Studio we recommend to build both in debug and release modes
+    If using a multi-configuration generator like Visual Studio we recommend to build both in debug and release modes.
+    The *Fast DDS* CLI tool is built and installed as well, since part of the test cases drive it.
 
     .. code-block:: bash
 
-        > colcon build --base-paths src \
-                --packages-up-to discovery-server \
-                --cmake-args -DLOG_LEVEL_INFO=ON -DCOMPILE_EXAMPLES=ON \
-                        -DINTERNALDEBUG=ON -DCMAKE_BUILD_TYPE=Debug
-        > colcon build --base-paths src \
-                --packages-up-to discovery-server \
-                --cmake-args -DCOMPILE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release
+        > colcon build --base-paths src ^
+                --packages-up-to discovery-server ^
+                --cmake-args -DTHIRDPARTY=ON -DCOMPILE_TOOLS=ON -DINSTALL_TOOLS=ON ^
+                        -DLOG_LEVEL_INFO=ON -DCMAKE_BUILD_TYPE=Debug
+        > colcon build --base-paths src ^
+                --packages-up-to discovery-server ^
+                --cmake-args -DTHIRDPARTY=ON -DCOMPILE_TOOLS=ON -DINSTALL_TOOLS=ON ^
+                        -DCMAKE_BUILD_TYPE=Release
+
+    The options available to configure the build of the framework are listed in :ref:`cmake_options`.
 
 .. note::
 
@@ -211,47 +220,18 @@ This section explains how to use it to compile the Discovery Server tool and its
     page of the colcon_ manual.
 
 
-Run an application
+Run the test suite
 ******************
 
-#.  If you installed the Discovery Server tool following the steps outlined above, you can try the
-    ``HelloWorldExampleDS``.
-    To run the example navigate to the following directory
+Once the framework has been built, the whole set of scenarios can be run with colcon:
 
-    ``<path/to/discovery-server-ws>/discovery-server-ws/install/discovery-server/examples/HelloWorldExampleDS``
+.. code-block:: bash
 
-    and run
+    > colcon test --base-paths src --packages-select discovery-server ^
+            --event-handlers=console_direct+ --ctest-args --label-exclude xfail
 
-    .. code-block:: bash
-
-        > HelloWorldExampleDS --help
-
-
-    to display the example usage instructions.
-
-    In order to test the ``HelloWorldExampleDS`` open three consoles and run the above command.
-    Then run the following command in each console:
-
-    -   Console 1:
-
-        .. code-block:: bash
-
-            > cd <path/to/discovery-server-ws>/discovery-server-ws/install/discovery-server/examples/HelloWorldExampleDS
-            > HelloWorldExampleDS publisher
-
-    -   Console 2:
-
-        .. code-block:: bash
-
-            > cd <path/to/discovery-server-ws>/discovery-server-ws/install/discovery-server/examples/HelloWorldExampleDS
-            > HelloWorldExampleDS subscriber
-
-    -   Console 3:
-
-        .. code-block:: bash
-
-            > cd <path/to/discovery-server-ws>/discovery-server-ws/install/discovery-server/examples/HelloWorldExampleDS
-            > HelloWorldExampleDS server
+Refer to :ref:`test_suite` for running individual test cases and for the description of the validators applied to
+their output, and to :ref:`usage` for launching the ``discovery-server`` tool by hand.
 
 .. External links
 

@@ -71,10 +71,11 @@ def select_css(html_css_dir):
     Select CSS file with the website's template.
 
     :param html_css_dir: The directory to save the CSS stylesheet.
-    :return: Returns a list of CSS files to be imported.
+    :return: Returns a list of CSS files to be imported, with paths relative
+        to the directory declared in html_static_path.
     """
-    common_css = '_static/css/eprosima_rtd_theme.css'
-    local_css = '_static/css/fiware_readthedocs.css'
+    common_css = 'css/eprosima_rtd_theme.css'
+    local_css = 'css/fiware_readthedocs.css'
     if download_css(html_css_dir):
         print('Appliying common CSS style file: {}'.format(common_css))
         return [common_css]
@@ -143,7 +144,7 @@ release = u'2.0.0'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -190,6 +191,10 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# The spelling filters cannot be serialized, so the configuration cache is
+# unable to store them. Building with -W would turn that notice into an error.
+suppress_warnings = ['config.cache']
+
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -232,9 +237,8 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_context = {
-        'css_files': select_css(script_path),
-        }
+# Custom CSS style sheets, relative to html_static_path
+html_css_files = select_css(script_path)
 
 
 # Add any extra paths that contain custom files (such as robots.txt or

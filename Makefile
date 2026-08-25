@@ -57,7 +57,7 @@ html:
 
 .PHONY: test
 test:
-	doc8 docs
+	doc8 --max-line-length 120 docs
 	@echo
 	@echo "RST checking finished."
 	$(SPHINXBUILD) -W --keep-going -b spelling $(ALLSPHINXOPTS) $(BUILDDIR)/spelling

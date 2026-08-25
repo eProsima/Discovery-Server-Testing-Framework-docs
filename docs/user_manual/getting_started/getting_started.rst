@@ -1,119 +1,86 @@
+.. include:: ../../03-exports/roles.include
+
 .. _getting_started:
 
 Getting started
 ###############
 
-This section explains the basic concepts of the Discovery Server discovery mechanism.
-For more information on the Discovery Server mechanism, please refer to the
-`Fast DDS documentation <https://fast-dds.docs.eprosima.com/en/v2.3.3/fastdds/discovery/discovery_server.html>`_.
+This section explains how the Discovery Server testing framework works and which pieces it is made of.
 
-Basic concepts
-**************
+.. note::
 
-Under the new client-server discovery paradigm, the metatraffic (message exchange among participants to identify each
-other) is centralized in one or several server participants (right figure), as opposed to simple discovery
-(left figure), where metatraffic is exchanged using a message broadcast mechanism like an IP multicast protocol.
+    The Discovery Server discovery mechanism is a feature of |fastdds|_.
+    Its behavior, configuration and usage are described in the
+    `Fast DDS documentation <https://fast-dds.docs.eprosima.com/en/latest/fastdds/discovery/discovery.html>`_,
+    which is the reference to consult when writing the participant profiles used by the framework.
 
-.. image:: /01-figures/ds_uml.png
-    :align: center
-    :alt: Discovery Server discovery mechanism
+.. contents::
+    :local:
+    :backlinks: none
+    :depth: 2
 
-Clients must be aware of how to reach the server, usually by specifying an IP address and a transport protocol like UDP
-or TCP. Servers do not need any beforehand knowledge of their clients but, we must specify where they may be reached by
-them, usually by specifying a listening IP address and transport protocol.
+Framework components
+********************
 
-One of the design goals of the current implementation was to keep both the discovery messages structure and standard
-RTPS writer and reader behavior unchanged. In order to do so, clients must be aware of their server's GuidPrefix.
-GuidPrefix is the RTPS standard participant unique identifier (basically 12 bytes) which allows clients to assess
-whether they are receiving messages from the right server, as each standard RTPS message contains this piece of
-information. Note that the server's IP address may not be a reliable server's identifier because several can be
-specified and multicast addresses are acceptable. In future implementations, any other more convenient and non-standard
-identifier may substitute the GuidPrefix at the expense of adding non-standard members to the RTPS discovery messages
-structure.
+The framework is made of two components:
 
-Finally, the discovery between clients is only performed in case of a match at the topic level between publishers and
-subscribers.
-That is, customers with publishers and subscribers on different topics will never discover each other.
-This implies a notorious reduction in the number of messages exchanged.
+*   The ``discovery-server`` **tool**.
+    A C++ executable that takes a single XML configuration file and deploys the DDS entities it describes.
+    Servers, clients and their publishers and subscribers are created and destroyed at the instants stated in the
+    file, so a complete discovery scenario can be reproduced from a text file without writing any code.
 
-.. _rtps_attr:
+*   The **test suite**.
+    A set of Python scripts that run the tool over every test case and validate its output.
+    It is registered with CTest, so the whole set of scenarios is launched with a single ``ctest`` invocation.
+    See :ref:`test_suite` for details.
 
-RTPS attributes dealing with discovery services
-===============================================
+.. _getting_started_snapshots:
 
-Several *Fast DDS* configuration structures have been updated in order to deal with the new client-server discovery
-strategy. Note that the following elements belong exclusively to fast RTPS builtin discovery architecture and that
-the discovery server application just profits from the capabilities provided by *Fast DDS* library.
+Snapshots
+*********
 
-RTPSParticipantAttributes
--------------------------
+Whenever the tool creates a participant, either a client or a server, it becomes its *listener*, meaning that all
+the discovery information received by that participant is relayed to the tool and stored in a database.
 
--   ``GuidPrefix_t guidPrefix`` member specifies the server's identity.  This member has only significance if
-    `discovery_config.discoveryProtocol` is **SERVER** or **BACKUP**. There is a `ReadguidPrefix` method to easily fill
-    in this member from a string formatted like ``"4D.49.47.55.45.4c.5f.42.41.52.52.4f"`` (note that each byte must
-    be a valid hexadecimal figure).
+A **snapshot** is a commit of that database at a given time point: the collective knowledge of every deployed
+participant at that instant, that is, which participants each one has discovered and which publishers and
+subscribers they know about.
+Snapshots are serialized as XML, and they are the artifact the test suite validates.
 
-BuiltinAttributes
------------------
+The instants at which snapshots are taken, and the file where they are written, are declared in the ``snapshots``
+tag of the configuration file, described in :ref:`config_files`.
 
-+   All discovery related info is gathered in a ``DiscoverySettings discovery_config`` member.
+Configuration files
+*******************
 
-+   In order to receive client metatraffic, `metatrafficUnicastLocatorList` or `metatrafficMulticastLocatorList` must
-    be populated with the addresses that were given to the clients.
+The tool is driven from an XML configuration file whose outermost tag is ``DS``.
+This schema extends the *Fast DDS* XML schema with the tags needed to describe a test scenario, and it has two
+goals:
 
-.. _getting_started_discovery_settings:
+-   Simplify the setup of the participants that take part in the scenario.
+    Writing a *Fast DDS* participant profile for each server is tiresome given the amount of boilerplate involved,
+    so a reduced syntax is provided to declare servers and their connections.
 
-DiscoverySettings
------------------
+-   Describe the scenario itself: which entities exist, when each one is created and removed, which topics they use,
+    and when the discovery state must be captured.
+    Testing discovery involves creating a large number of participants, publishers and subscribers over different
+    transports, and being able to check the discovery status at several points in time.
 
-+   ``DiscoveryProtocol_t discoveryProtocol`` member specifies the participant's discovery kind:
+The ``DS`` tag admits an optional boolean attribute ``user_shutdown``, which defaults to *true*.
+Test configuration files set :code:`user_shutdown="false"`, which makes the tool close as soon as the described
+scenario is fulfilled instead of running until the user stops it.
 
-    -   **SIMPLE** generates a standard participant with complete backward compatibility with any other RTPS
-        implementation.
-    -   **CLIENT** generates a *client* participant, which relies on a server to be notified of other *clients*
-        presence.
-        This participant can create publishers and subscribers of any topic (static or dynamic) as ordinary participants
-        do.
-    -   **SERVER** generates a *server* participant, which receives, manages and spreads its linked *clients*
-        metatraffic assuring any single one is aware of the others. This participant can create publishers and
-        subscribers of any topic (static or dynamic) as ordinary participants do. Servers can link to other servers
-        in order to share its clients information.
-    -   **BACKUP** generates a *server* participant with additional functionality over **SERVER**. Specifically, it uses
-        a database to backup its client information, so that if for whatever reason it disappears, it can be
-        automatically restored and continue spreading metatraffic to late joiners. A **SERVER** in the same scenario
-        ought to collect client information again, introducing a recovery delay.
+Every tag accepted by the configuration file is described in :ref:`config_files`, and complete examples are
+available in :ref:`basic_config_file`, :ref:`advanced_config_file` and :ref:`xml_configuration_examples`.
 
-+   ``RemoteServerList_t m_DiscoveryServers`` lists the servers linked to the participant. This member has only
-    significance if ``discoveryProtocol`` is **CLIENT**, **SERVER** or **BACKUP**. These member elements are
-    ``RemoteServerAttributes`` objects that identify each server and report where the servers can be reached:
+Participant profiles
+********************
 
-    -   ``GuidPrefix_t guidPrefix`` is the RTPS unique identifier of the server participant we want to link to.
-        There is a `ReadguidPrefix` method to easily fill in this member from a string formatted like
-        `"4D.49.47.55.45.4c.5f.42.41.52.52.4f"` (note that each octet must be a valid hexadecimal figure).
-    -   ``metatrafficUnicastLocatorList`` and `metatrafficMulticastLocatorList` are ordinary `LocatorList_t`
-        (see *Fast DDS* documentation) where the server's locators must be specified. At least one of them should be
-        populated.
-    -   ``Duration_t discoveryServer_client_syncperiod`` specifies the time span of PDP metatraffic exchange,
-        and has only significance if ``discoveryProtocol`` is **CLIENT**, **SERVER** or **BACKUP**.
-        The default value is half a second.
-
-.. _getting_started_rtps_schema:
-
-RTPS schema elements dealing with discovery services
-=====================================================
-
-Each of the attributes in *Fast DDS* has its equivalent in the XML profiles. XML profiles make it possible to avoid
-tiresome hard-coded settings within application sources using XML configuration files. The fast XML schema was duly
-updated to accommodate the new client-server attributes:
-
-+   The participant profile ``rtps`` tag contains a new optional ``prefix`` tag where the server ``GuidPrefix_t``
-    must be specified.
-    Any other discovery selection as simple or clients may disregard this member.
-
--   The participant profile ``builtin`` tag contains a ``discovery_config`` tag where all discovery-related info is
-    gathered. This new tag contains the following new XML child elements:
-    -   ``<discoveryProtocol>``: specifies the discovery type through the ``DiscoveryProtocol_t`` enumeration.
-    -   ``<discoveryServersList>``: specifies the server or servers linked with a Client/Server.
-    -   ``<clientAnnouncementPeriod>``: specifies the time span between PDP metatraffic exchange.
-
-An XML profiles examples using this new tags can be found :ref:`here <basic_config_file>`.
+The participants deployed by the tool are configured through ordinary *Fast DDS* XML profiles, gathered under the
+``profiles`` tag of the configuration file.
+The discovery-related settings used by these profiles, such as the discovery protocol of a participant, the list of
+servers it connects to or its announcement period, belong to *Fast DDS* and are documented in the
+`Discovery Server section <https://fast-dds.docs.eprosima.com/en/latest/fastdds/discovery/discovery_server.html>`_
+and in the
+`XML profiles section <https://fast-dds.docs.eprosima.com/en/latest/fastdds/xml_configuration/making_xml_profiles.html>`_
+of the *Fast DDS* documentation.

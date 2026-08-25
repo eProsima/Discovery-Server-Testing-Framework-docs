@@ -1,11 +1,11 @@
-.. eProsima Discovery Server documentation master file
+.. eProsima Discovery Server testing framework documentation master file
 
 .. include:: ./03-exports/roles.include
 
 
-**********************************************
-eProsima Discovery Server Documentation
-**********************************************
+*********************************************************
+eProsima Discovery Server Testing Framework Documentation
+*********************************************************
 
 .. image:: /01-figures/logo.png
     :height: 100px
@@ -14,34 +14,36 @@ eProsima Discovery Server Documentation
     :alt: eProsima
     :target: http://www.eprosima.com/
 
-The `RTPS standard <http://www.omg.org/spec/DDSI-RTPS/2.2>`__ specifies in section 8.5 a non-centralized, distributed
-simple discovery mechanism. This mechanism was devised to allow interoperability among independent
-vendor-specific implementations but is not expected to be optimal in every environment.
-There are several scenarios were the simple discovery mechanism is unsuitable or plainly cannot be
-applied: a) a high number of endpoint entities are continuously entering and leaving the communication, b) wide
-communication systems deployment, and c) networks without multicasting capabilities.
+This documentation covers the **Discovery Server testing framework**, the tool suite used to validate the
+Discovery Server discovery mechanism of |fastdds|_.
 
-In order to cope with the above issues, the *eProsima Fast DDS* discovery mechanism was extended with a new
-Discovery Server discovery mechanism.
-This mechanism is based on a client-server discovery paradigm, i.e. the metatraffic (message exchange among
-DDS DomainParticipants to identify each other) is managed by one or several server DomainParticipants (left figure), as
-opposed to simple discovery (right figure), where metatraffic is exchanged using a message broadcast mechanism like an
-IP multicast protocol.
-Please, refer to
-`Fast DDS documentation <https://fast-dds.docs.eprosima.com/en/v2.3.3/fastdds/discovery/discovery_server.html>`_ for
-further information about the Discovery Server discovery mechanism.
+.. important::
 
-.. warning::
+    Discovery Server is a discovery mechanism built into |fastdds|_, not a separate product.
+    The description, configuration and usage of the discovery mechanism itself are documented in the
+    `Fast DDS documentation <https://fast-dds.docs.eprosima.com/en/latest/fastdds/discovery/discovery.html>`_.
+    This documentation only explains how to build, configure and run the framework that tests it.
 
-    This documentation refers to the `GitHub Discovery Server repository <https://github.com/eProsima/Discovery-Server>`__, which implements an application to test the Discovery Server discovery mechanism.
-    Therefore it should be emphasized that **Discovery Server is a discovery mechanism already available in** |fastdds|_ and this documentation refers to an application mainly used to test this functionality.
+The framework is made of two parts:
+
+*   The ``discovery-server`` tool, an executable that reads a single XML configuration file and deploys the DDS
+    entities described in it (servers, clients, publishers and subscribers), creating and destroying them at the
+    stated times.
+    The tool listens to the discovery information received by every participant it creates, stores it in a database,
+    and dumps *snapshots* of that database, that is, the collective knowledge of every deployed participant at a
+    given instant.
+
+*   A Python test suite that runs the tool over each test case and validates the resulting snapshots against the
+    expected discovery state. The suite is registered with CTest and is the one executed by the framework's CI.
+
+The framework's source code is available in the
+`Discovery Server GitHub repository <https://github.com/eProsima/Discovery-Server-Testing-Framework>`__.
 
 This documentation is organized into the following sections:
 
 * :ref:`installation_manual`
 * :ref:`user`
 * :ref:`xml_examples`
-* :ref:`cpp_examples`
 * :ref:`notes`
 
 .. _installation_manual:
@@ -67,6 +69,7 @@ This documentation is organized into the following sections:
     user_manual/getting_started/getting_started
     user_manual/usage/command_line
     config_files/config_files
+    user_manual/test_suite/test_suite
 
 .. _xml_examples:
 
@@ -79,18 +82,6 @@ This documentation is organized into the following sections:
     xml_profiles/basic_config
     xml_profiles/advanced_config
     xml_profiles/transports
-
-.. _cpp_examples:
-
-.. toctree::
-    :caption: C++ Examples
-    :maxdepth: 2
-    :numbered: 5
-    :hidden:
-
-    cpp_examples/HelloWorldExample
-    cpp_examples/udp_settings
-    cpp_examples/tcp_settings
 
 .. _notes:
 

@@ -125,7 +125,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Discovery Server'
+project = u'Discovery Server Testing Framework'
 copyright = u'2018, eProsima'
 author = u'eProsima'
 
@@ -315,7 +315,7 @@ html_context = {
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'DiscoveryServerManual'
+htmlhelp_basename = 'DiscoveryServerTestingFrameworkManual'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -341,7 +341,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'DiscoveryServer.tex', u'Discovery Server Documentation',
+    (master_doc, 'DiscoveryServerTestingFramework.tex',
+     u'Discovery Server Testing Framework Documentation',
      u'eProsima', 'manual'),
 ]
 
@@ -383,7 +384,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'DiscoveryServer', u'Discovery Server Documentation',
+    (master_doc, 'DiscoveryServerTestingFramework',
+     u'Discovery Server Testing Framework Documentation',
      [author], 1)
 ]
 
@@ -398,8 +400,10 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'DiscoveryServer', u'Discovery Server Documentation',
-     author, 'Discovery Server', 'Documentation of eProsima Discovery Server',
+    (master_doc, 'DiscoveryServerTestingFramework',
+     u'Discovery Server Testing Framework Documentation',
+     author, 'Discovery Server Testing Framework',
+     'Documentation of the eProsima Discovery Server testing framework',
      'Miscellaneous'),
 ]
 
